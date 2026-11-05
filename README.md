@@ -1,4 +1,42 @@
 # Instamart Project
+
+## Reproduce
+
+1. Clone the repository and switch to the `main` branch:
+
+```
+git clone <repository-url>
+cd Instamart_project
+git checkout main
+```
+
+2. Create and activate a virtual environment:
+
+```
+python -m venv .venv
+```
+
+Windows (PowerShell):
+```
+.venv\Scripts\Activate.ps1
+```
+
+Linux / macOS:
+```
+source .venv/bin/activate
+```
+
+3. Install the dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+4. Run the whole project (Parts A to D) from the project root folder:
+
+```
+python run_project.py
+```
 ## Reproduce
 1. Clone the repository and switch to the `main` branch:
 git clone <repository-url>
