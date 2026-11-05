@@ -1,18 +1,21 @@
 # Instamart Project
 ## Reproduce
 1. Clone the repository and switch to the `main` branch:
-   ```bash
-   git clone <repository-url>
-   cd Instamart_project
-   git checkout main
-   python -m venv .venv
-# On Windows:
+git clone <repository-url>
+cd Instamart_project
+git checkout main
+
+2. Create and activate a virtual environment:
+python -m venv .venv
+On Windows:
 .venv\Scripts\activate
-# On macOS/Linux:
+On macOS/Linux:
 source .venv/bin/activate
-# install the dependencies
+
+3. Install the dependencies:
 pip install -r requirements.txt
 python generate_data.py
+python mock_llm.py
 
 ## PART - A
 1. Data Audit - Check for missing values, check the data type
