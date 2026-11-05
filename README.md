@@ -1,59 +1,51 @@
 # Instamart Project
 
+> Educational implementation of the supplied fictional Instamart-style capstone. All generated records are synthetic; no real customer data, hosted LLM, API key, or network call is needed.
+
 ## Reproduce
+Python 3.11+ recommended.
 
 1. Clone the repository and switch to the `main` branch:
-
 ```
 git clone <repository-url>
 cd Instamart_project
 git checkout main
 ```
-
 2. Create and activate a virtual environment:
-
 ```
 python -m venv .venv
 ```
-
 Windows (PowerShell):
 ```
 .venv\Scripts\Activate.ps1
 ```
-
 Linux / macOS:
 ```
 source .venv/bin/activate
 ```
-
 3. Install the dependencies:
-
 ```
-pip install -r requirements.txt
-```
-
-4. Run the whole project (Parts A to D) from the project root folder:
-
-```
-python run_project.py
-```
-## Reproduce
-1. Clone the repository and switch to the `main` branch:
-git clone <repository-url>
-cd Instamart_project
-git checkout main
-
-2. Create and activate a virtual environment:
-python -m venv .venv
-On Windows:
-.venv\Scripts\activate
-On macOS/Linux:
-source .venv/bin/activate
-
-3. Install the dependencies:
 pip install -r requirements.txt
 python generate_data.py
 python mock_llm.py
+python run_project.py
+```
+4. Run the whole project (Parts A to D) from the project root folder:
+```
+python run_project.py
+```
+
+## Repository map
+- `generate_data.py`: deterministic fictional CSV and policy generation.
+- `mock_llm.py`: offline stand-in for classification, policy answers and agent tool calls.
+- `code_automation/data_audit.py`: audit, clean, SQLite load, validation.
+- `code_automation/RFM_modelbuilding.py`: RFM, K-means, PCA, lapse model with train/test separation.
+- `code_automation/triage.py`: token guardrails, PII redaction, retries, response validation, routing.
+- `code_automation/rag_agents.py`: chunking, TF-IDF retrieval and grounded policy evaluation.
+- `sql/queries.sql`: seven SQL learning patterns.
+- `outputs/`: generated artifacts ; `state/`: agent checkpoint examples.
+
+Open `Part_A_DataClean.ipynb`, `Part_B_BuildingModels.ipynb`, `Part_C_TicketGuardrails.ipynb`, `Part_D_RAG&Agent.ipynb` and run cells from top to bottom. The notebook calls the same modules used by the scripts.
 
 ## PART - A
 1. Data Audit - Check for missing values, check the data type
