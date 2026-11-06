@@ -7,7 +7,7 @@ Python 3.11+ recommended.
 
 1. Clone the repository and switch to the `main` branch:
 ```
-git clone <repository-url>
+git clone <https://github.com/kurshidyaser14-cmd/Instamart-Customer-Intelligence-Support-Copilot.git>
 cd Instamart_project
 git checkout main
 ```
