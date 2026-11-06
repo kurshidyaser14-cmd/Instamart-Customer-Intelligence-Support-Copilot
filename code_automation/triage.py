@@ -81,7 +81,7 @@ def guardrail_redact():
     print("----------------------- Input Guardrail ---------------------------")
     print(out["status"].value_counts())
     print(out[out["status"] == "flagged_long"]["est_tokens"].tolist())
-    print("----------------------- Redaction list --------------------------")
+    print("\n----------------------- Redaction list --------------------------")
     print("Number of Substitutions for EMAILS :", email_count)
     print("Number of Substitutions for PHONES :", phone_count)
     print("Number of Substitutions for ORDER IDs :", order_count)
@@ -104,7 +104,7 @@ def prompts():
     assert "EXAMPLES:" in FEW_SHOT_PROMPT
     assert FEW_SHOT_PROMPT.count("Answer:") >= 2
     assert '"category": "fraud"' in FEW_SHOT_PROMPT
-    print("------------------- Prompt Creation -----------------------")
+    print("\n------------------- Prompt Creation -----------------------")
     print("Both prompts satisfy the conditions.")
 # ---------------- Task 4: retry function (top level, so budget() can use it too) ----------------
 def call_with_retry(messages, ticket_id, log):
@@ -153,18 +153,18 @@ def run_pipeline(system_prompt, df, messages_list):
 def retry_validate(df, messages_list):
     zero_res, zero_tokens, zero_log, zero_perm = run_pipeline(ZERO_SHOT_PROMPT, df, messages_list)
     few_res, few_tokens, few_log, few_perm = run_pipeline(FEW_SHOT_PROMPT, df, messages_list)
-    print("-------------------- Retry Mechanism ----------------------")
+    print("\n-------------------- Retry Mechanism ----------------------")
     for line in zero_log["lines"]:
         print(line)
     print("tickets answered  :", len(zero_res))
     print("permanent errors  :", zero_perm)
     print("TransientLLMErrors:", zero_log["errors"])
     print("retry log lines   :", len(zero_log["lines"]))
-    print("-------------------- Output Validation ----------------------")
+    print("\n-------------------- Output Validation ----------------------")
     print(zero_res["status"].value_counts())
     print("Ticket IDs routed for human review:",
           zero_res[zero_res["status"] == "flagged_invalid_output"]["ticket_id"].tolist())
-    print("-------------- Prompts Comparison with Confusion Table --------------------")
+    print("\n-------------- Prompts Comparison with Confusion Table --------------------")
     for name, res, tok in [("Zero-shot", zero_res, zero_tokens), ("Few-shot", few_res, few_tokens)]:
         cls = res[res["status"].isin(["classified_json", "classified_keyword"])]
         n = len(cls)
@@ -224,14 +224,14 @@ def budget(df, messages_list):
     TOKEN_BUDGET = 6000
     demo = run_with_budget(ZERO_SHOT_PROMPT, TOKEN_BUDGET)
     demo.to_csv("outputs/triage_budget_demo.csv", index=False)
-    print("-------------------- Budget Demo (zero-shot) ----------------------")
+    print("\n-------------------- Budget Demo (zero-shot) ----------------------")
     print("budget used            :", TOKEN_BUDGET)
     print("budget_exhausted count :", int((demo["status"] == "budget_exhausted").sum()))
     print("tokens used in demo    :", demo["tokens_used"].sum())
     # (b) final output: few-shot
     final = run_with_budget(FEW_SHOT_PROMPT, 100000)
     final.to_csv("outputs/triage_results.csv", index=False)
-    print("-------------------- Final Results (few-shot) ----------------------")
+    print("\n-------------------- Final Results (few-shot) ----------------------")
     print("rows saved:", len(final))
     print("\nStatus counts:")
     print(final["status"].value_counts())

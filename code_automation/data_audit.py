@@ -312,4 +312,10 @@ def exploratory_analysis():
     }).round(2)
     print("Rows:", len(done_b), "| Total:", round(done_b["order_amount"].sum(), 2))
     print(stats)
+    corr = done_b[["order_amount", "discount_pct", "quantity", "delivery_minutes"]].corr()
+    print(corr.round(3))
+    pairs = corr.abs().where(~np.eye(len(corr), dtype=bool)).stack()
+    a, b = pairs.idxmax()
+    print("Largest |corr|:", a, "&", b, "=", round(corr.loc[a, b], 3))
+
 if __name__=="__main__": audit(); data_clean(); validate(); cross_check(); exploratory_analysis()

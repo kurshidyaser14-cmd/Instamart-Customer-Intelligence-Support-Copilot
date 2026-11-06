@@ -5,7 +5,6 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
@@ -43,7 +42,7 @@ def RFM_table():
     return rfm
 
 def k_mean(rfm):
-    print("--------------- K-MEAN CLUSTERING -----------------")
+    print("\n--------------- K-MEAN CLUSTERING -----------------")
     X = rfm[["recency", "frequency", "monetary"]]
     X_scaled = StandardScaler().fit_transform(X)
     results = []
@@ -91,7 +90,7 @@ def k_mean(rfm):
     summary["action"]       = summary.index.map(segment_actions)
     summary["is_premium"]   = (summary.index == premium_id)
     print(summary.to_string())
-    print("--------------- PCA FOR VISUALIZATION -----------------")
+    print("\n--------------- PCA FOR VISUALIZATION -----------------")
     pca = PCA(n_components=2)
     pcs = pca.fit_transform(X_scaled)
     print("explained_variance_ratio_:", pca.explained_variance_ratio_.round(3))
@@ -110,7 +109,7 @@ def k_mean(rfm):
     print(out.head())
 
 def lapsed_model():
-    print("---------------LAPSE DATASET CREATION AND MODEL BUILDING -----------------")
+    print("\n---------------LAPSE DATASET CREATION AND MODEL BUILDING -----------------")
     orders    = pd.read_csv("data/clean/orders.csv", parse_dates=["order_ts"])
     customers = pd.read_csv("data/clean/customers.csv", parse_dates=["signup_date"])
     products  = pd.read_csv("data/clean/products.csv")
@@ -185,7 +184,7 @@ def lapsed_model():
         cv=5, scoring="f1",
     )
     log_reg_grid.fit(X_train, y_train)
-    print("---------------- LAPSE MODEL SCORES -----------------")
+    print("\n---------------- LAPSE MODEL SCORES -----------------")
     print("\nLogistic regression best params :", log_reg_grid.best_params_)
     print("Logistic regression best CV F1  :", round(log_reg_grid.best_score_, 3))
     rf_pipe = Pipeline([
@@ -217,7 +216,7 @@ def lapsed_model():
         evaluate("Random forest",       rf_grid.best_estimator_),
     ]).round(3)
     print("\n", results.to_string(index=False)) 
-    print("---------- CLASS-BALANCE EXPERIMENT -----------")
+    print("\n---------- CLASS-BALANCE EXPERIMENT -----------")
     print("Original train counts:\n", y_train.value_counts())
     lapsed_idx = y_train[y_train == 1].index
     n_major    = (y_train == 0).sum()
@@ -242,7 +241,7 @@ def lapsed_model():
     print("\n", comp.round(3))
     print("\n Difference between balanced dataset - original dataset):")
     print((comp.loc["Over-sampled LR"] - comp.loc["Un-balanced LR"]).round(3))
-    print("------------------ FEATURE IMPORTANCE -------------------")
+    print("\n------------------ FEATURE IMPORTANCE -------------------")
     rf_best  = rf_grid.best_estimator_
     names    = rf_best.named_steps["prep"].get_feature_names_out()
     imp      = pd.Series(rf_best.named_steps["model"].feature_importances_, index=names)
@@ -253,7 +252,7 @@ def lapsed_model():
                         index=lr_best.named_steps["prep"].get_feature_names_out())
     print("Logestic Regression best 3 Feature Importance")
     print(coef.loc[["num__recency", "num__frequency", "num__cancellation_rate"]].round(3))
-    print("-------------- COMPARISON OF ORIGINAL (VS) LOADED TEST PREDICTIONS -------------")
+    print("\n-------------- COMPARISON OF ORIGINAL (VS) LOADED TEST PREDICTIONS -------------")
     final_model = rf_grid.best_estimator_
     os.makedirs("outputs", exist_ok=True)
     joblib.dump(final_model, "outputs/lapse_model.joblib")
@@ -274,7 +273,7 @@ def lapsed_model():
     print("\nRows compared:", len(comparison))
     print("All predictions match:", comparison["match"].all())
     print("Mismatches:", (~comparison["match"]).sum())
-    print("---------------- LAPSE PREDICTION ON TEST DATA -----------------")
+    print("\n---------------- LAPSE PREDICTION ON TEST DATA -----------------")
     proba = final_model.predict_proba(X_test)[:, 1]
     test_df = pd.DataFrame({
         "customer_id":       data.loc[X_test.index, "customer_id"].values,
