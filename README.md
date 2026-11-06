@@ -7,8 +7,8 @@ Python 3.11+ recommended.
 
 1. Clone the repository and switch to the `main` branch:
 ```
-git clone <https://github.com/kurshidyaser14-cmd/Instamart-Customer-Intelligence-Support-Copilot.git>
-cd Instamart_project
+git clone https://github.com/kurshidyaser14-cmd/Instamart-Customer-Intelligence-Support-Copilot.git
+cd Instamart-Customer-Intelligence-Support-Copilot
 git checkout main
 ```
 2. Create and activate a virtual environment:
