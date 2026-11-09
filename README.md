@@ -28,7 +28,6 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python generate_data.py
 python mock_llm.py
-python run_project.py
 ```
 4. Run the whole project (Parts A to D) from the project root folder:
 ```
@@ -51,6 +50,7 @@ Open `Part_A_DataClean.ipynb`, `Part_B_BuildingModels.ipynb`, `Part_C_TicketGuar
 1. Data Audit - Check for missing values, check the data type
 2. Clean Dataset - immute the missing values, Change the datatype if required
 3. Data Validate - using SQL quires, crossed the pandas tolal with SQL total using Pivot Table.
+Why ties cause RANK() ≠ ROW_NUMBER(): tied customers share one RANK() value while ROW_NUMBER() keeps counting up uniquely, so the two diverge on every tied row after the first.
 4. EDA Analysis - Analysis made through Histogram, Box-plot, Heatmap
 
 ## PART - B

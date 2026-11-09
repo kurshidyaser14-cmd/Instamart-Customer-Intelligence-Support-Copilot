@@ -12,6 +12,7 @@ tickets_df = pd.read_csv(
 
 def audit():
     print(f"\n{'-'*25}\n--- ORDERS AUDIT ---\n{'-'*25}")
+    print("Number of rows in ORDERS dataset", orders_df.shape)
     total_orders = len(orders_df)
     exact_dupes_orders = orders_df.duplicated().sum()
     pending_rows = (orders_df["status"].str.lower() == "pending").sum() 
@@ -24,8 +25,9 @@ def audit():
             | (orders_df["delivery_minutes"] == "")
             | (orders_df["delivery_minutes"].astype(str).str.strip() == "")
         ).sum()
-    print(f"Total number of pending rows in STATUS columns: {pending_rows}")
     print(f"Number of exact duplicate rows in ORDERS dataset: {exact_dupes_orders}")
+    print(f"Total number of pending rows in STATUS columns: {pending_rows}")
+    print(f"Number of distinct order IDs in ORDERS dataset: {distinct_order_ids}")
     print(f"Number of non-numeric ORDER AMOUNT columns: {non_numeric_amounts}")
     print(f"Number of negative values in DELIVERY MINUTES column: {neg_delivery}")
     print(f"Number of blank values in DELIVERY MINUTES column: {blank_delivery}")
@@ -44,11 +46,11 @@ def audit():
             | (customers_df["gender"].astype(str).str.strip().str.lower() == "")
         ).sum()
     distinct_genders = (customers_df["gender"].nunique())
-    print(f"Number of values outside the 10-100 range in AGE column: {age_outside}")
     print(f"Number of blank values in AGE column: {blank_age}")
+    print(f"Number of values outside the 10-100 range in AGE column: {age_outside}")
     print(f"Number of unique cities in CITY column: {distinct_cities}")
-    print(f"Number of blank values in GENDER column: {blank_gender}")
     print(f"Number of unique raw genders in GENDER column: {distinct_genders}")
+    print(f"Number of blank values in GENDER column: {blank_gender}")
 
 def data_clean():
     orders_df = pd.read_csv("data/raw/orders.csv")
@@ -119,11 +121,15 @@ def data_clean():
     customers_df['city'] = customers_df['city'].map(city_mapping)
     customers_df["signup_date"] = pd.to_datetime(customers_df["signup_date"], errors='coerce')
     customers_df["gender"] = customers_df["gender"].map(gender_mapping).fillna("unknown")
+    missing = customers_df['age'].isna().sum()
+    out_of_range = (~customers_df['age'].between(18, 60) & customers_df['age'].notna()).sum()
     print("Total count in AGE column after fillna", customers_df["age"].count())
     print(f"Total count of each gender category after cleaning:")
     print(customers_df["gender"].value_counts())
     print(f"Total count of each city category after cleaning:")
     print(customers_df["city"].value_counts())
+    print("Number of Missing ages:", missing)
+    print("Number of Out of range ages between 18 and 60:", out_of_range)
 
 def validate():
     os.makedirs("sql", exist_ok=True)
@@ -211,32 +217,63 @@ def validate():
     with open("sql/queries.sql", "w") as f:
         f.write(queries_content.strip())
     conn = sqlite3.connect("data/instamart.db")
+
     with open("sql/queries.sql", "r") as f:
         sql_script = f.read()
+
     queries = [q.strip() for q in sql_script.split(";") if q.strip()]
+
     for i, query in enumerate(queries, 1):
-        print(f"=" * 60)
+        print("=" * 60)
         print(f"RUNNING QUERY Q{i}")
-        print(f"=" * 60)
+        print("=" * 60)
+
         result_df = pd.read_sql_query(query, conn)
+
         if i == 1:
             print(f"Result Checkpoint -> Total Customers: {len(result_df)}")
+
         elif i == 2:
             print(f"Result Checkpoint -> Total Rows: {len(result_df)}")
             print(f"Total Revenue Sum: INR {result_df['total_revenue'].sum():,.2f}")
+
         elif i == 3:
             print(f"Result Checkpoint -> Total Products: {len(result_df)}")
+
         elif i == 4:
             print(f"Result Checkpoint -> Total Customers: {len(result_df)}")
+
         elif i == 5:
             print(f"Result Checkpoint -> Total Customers: {len(result_df)}")
-            # calculate average of those totals to check INR 2,552.06
-            mean_val = result_df['total_spend'].mean() # Note: this is avg of those above, but you can inspect dataset level if needed
+            # Average of ALL customers' spend (not just those above average).
+            avg_df = pd.read_sql_query("""
+                SELECT AVG(total_spend) AS mean_spend FROM (
+                    SELECT customer_id, SUM(order_amount) AS total_spend
+                    FROM orders
+                    WHERE LOWER(status) = 'completed'
+                    GROUP BY customer_id
+                )
+            """, conn)
+            print(f"Average Spend: INR {avg_df['mean_spend'].iloc[0]:,.2f}")
+
+        elif i == 6:
+            print(f"Result Checkpoint -> Total Rows: {len(result_df)}")
+
+            print("\nTop customer per city (row_num = 1):")
+            top = result_df[result_df["row_num"] == 1][["city", "customer_id", "total_spend"]]
+            print(top.sort_values("city").to_string(index=False))
+
+            diff = (result_df["rnk"] != result_df["row_num"]).sum()
+            print(f"\nRows where RANK() != ROW_NUMBER(): {diff}")
+            print("Matches expected 8?", diff == 8)
+
+            print("\nRows affected by ties:")
+            print(result_df[result_df["rnk"] != result_df["row_num"]].to_string(index=False))
+
         elif i == 7:
             print(f"Result Checkpoint -> Total Daily Rows: {len(result_df)}")
-            last_cum_val = result_df['cumulative_revenue'].iloc[-1]
+            last_cum_val = result_df["cumulative_revenue"].iloc[-1]
             print(f"Last Cumulative Revenue: INR {last_cum_val:,.2f}")
-
 
         print(result_df.head())
         print("\n")
